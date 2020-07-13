@@ -23,6 +23,7 @@ function outputData = demodulatePSK(inputSignal, M, signalLength, sampling_frequ
         
         output_dem = [output_dem,(Multiplied_SignalS + Multiplied_SignalC * (0+1i))];    
     end
+    %scatterplot(output_dem)
     outputData = pskdemod(output_dem, M);
     
 

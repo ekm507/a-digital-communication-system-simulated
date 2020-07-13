@@ -15,12 +15,14 @@ function [signalOut] = modulatePSK (data, M, signalLength, sampling_frequency, c
 
 
     % transmitter's output signal. which is in the ideal form
-    outputSignal = 0;
     q = size(data);
     q = q(2);
+
+    outputSignal = zeros(1, k * q);
+
     for i = 1:q
         temp = carrier(data(i) + 1, :);
-        outputSignal = [outputSignal,temp];
+        outputSignal((i-1) * k + 1 : i * k) = temp;
     end
     signalOut = outputSignal;
 
