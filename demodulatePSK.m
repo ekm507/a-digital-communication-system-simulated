@@ -24,6 +24,22 @@ function outputData = demodulatePSK(inputSignal, M, signalLength, sampling_frequ
         output_dem = [output_dem,(Multiplied_SignalS + Multiplied_SignalC * (0+1i))];    
     end
     %scatterplot(output_dem)
+
+    k = [];
+    lastTheta = 0;
+    for i = output_dem
+        theta = angle(i);
+        theta = mod(theta, 2 * pi);
+        alpha = lastTheta - theta;
+        alpha = mod(alpha, 2 * pi);
+        norm_angle = alpha / ( 2 *pi ) * M;
+        data = round(norm_angle);
+        data = mod(4-data, 4);
+        k = [k data];
+        lastTheta = theta;
+
+    end
+    k
     outputData = pskdemod(output_dem, M);
     
 

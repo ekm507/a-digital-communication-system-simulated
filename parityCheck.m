@@ -10,8 +10,6 @@ function outputData = parityCheck (inputData, ParityBlockSize, M)
     for i = 1 : ParityBlockSize + 1 : max_decodable
         b = inputData(i : i + ParityBlockSize - 1);
         c = mod(sum(b), M);
-        %disp(b)
-        %disp(c)
         if c != inputData(i + ParityBlockSize)
         %    disp(i);
         end

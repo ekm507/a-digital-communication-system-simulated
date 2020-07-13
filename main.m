@@ -4,7 +4,7 @@ close all;
 % communication lib. for coding in MATLAB, comment the line below
 pkg load communications;
 
-snr = -10; % signal to noise ratio in channel
+snr = -50; % signal to noise ratio in channel
 M = 4; % PSK size. 2 for BPSK
 sampling_frequency = 6 * 1000 * 1000 * 1000; % 6 Giga sample per second
 carrier_frequency = 30*1000*1000; % 30 Mega Hertz
@@ -28,4 +28,4 @@ k3 = demodulatePSK(s2, M, signalLength, sampling_frequency, carrier_frequency);
 disp('diff decode');
 k4 = diffDecode(k3, M)
 disp('parity check');
-k5 = parityCheck(k4, ParityBlockSize, M)
+k5 = parityCheck(k4, ParityBlockSize, M);
