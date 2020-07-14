@@ -2,10 +2,10 @@ function outputData = parityCheck (inputData, ParityBlockSize, M)
 
     ParityCheckedData = [];
     q = size(inputData);
-    q = q(2)
+    q = q(2);
 
-    a = mod(q + 1 - 1, ParityBlockSize + 1)
-    max_decodable = q - ParityBlockSize  - a
+    a = mod(q + 1 - 1, ParityBlockSize + 1);
+    max_decodable = q - ParityBlockSize  - a;
 
     for i = 1 : ParityBlockSize + 1 : max_decodable
         b = inputData(i : i + ParityBlockSize - 1);

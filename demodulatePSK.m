@@ -1,4 +1,4 @@
-function outputData = demodulatePSK(inputSignal, M, signalLength, sampling_frequency, carrier_frequency)
+function outputPhasors = demodulatePSK(inputSignal, M, signalLength, sampling_frequency, carrier_frequency)
 
     output_dem = [];
 
@@ -8,6 +8,8 @@ function outputData = demodulatePSK(inputSignal, M, signalLength, sampling_frequ
 
     q = size(T);
     q = q(2);
+
+    output_dem = zeros(1, floor(length(inputSignal) / q) +1);
 
     % Demodulation process starts
     for k = 1:q:length(inputSignal)
@@ -21,26 +23,11 @@ function outputData = demodulatePSK(inputSignal, M, signalLength, sampling_frequ
         Multiplied_SignalS = mean(signalBlock .* carrierS);
         Multiplied_SignalC = mean(signalBlock .* carrierC);
         
-        output_dem = [output_dem,(Multiplied_SignalS + Multiplied_SignalC * (0+1i))];    
+        phasor = (Multiplied_SignalS + Multiplied_SignalC * (0+1i));
+        output_dem(floor(k/q)+1) = phasor;
     end
     %scatterplot(output_dem)
 
-    k = [];
-    lastTheta = 0;
-    for i = output_dem
-        theta = angle(i);
-        theta = mod(theta, 2 * pi);
-        alpha = lastTheta - theta;
-        alpha = mod(alpha, 2 * pi);
-        norm_angle = alpha / ( 2 *pi ) * M;
-        data = round(norm_angle);
-        data = mod(4-data, 4);
-        k = [k data];
-        lastTheta = theta;
-
-    end
-    k
-    outputData = pskdemod(output_dem, M);
-    
+    outputPhasors = output_dem;
 
 end
