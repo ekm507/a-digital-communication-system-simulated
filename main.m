@@ -23,7 +23,7 @@ sampling_frequency = carrier_frequency * 200; % 200 times carrier frequency.
 signal_phase_length = 2 * 2*pi; % 2 cycles
 
 % signal length in samples.
-signalLength = signal_phase_length / (2 * pi * carrier_frequency);
+signalLength = signal_phase_length / (2 * pi * carrier_frequency); % seconds
 
 % block size for parity adding algorithm
 % this is not actual parity in M > 2. it is mod of sum of data to M.
