@@ -7,10 +7,10 @@ close all;
 pkg load communications;
 
 % signal to noise ratio in channel
-snr = -10; % deci Bells
+snr = 10; % deci Bells
 
 % PSK modulation size. 2 for BPSK. 4 for QPSK.
-M = 4; % number size. this is called M in this project.
+M = 2; % number size. this is called M in this project.
 
 % carrier signal frequency for modulating PSK
 carrier_frequency = 30*1000*1000; % 30 Mega Hertz
@@ -35,8 +35,9 @@ ParityBlockSize = 4; % 4 numbers.
 % shiftSize = shif_Time * sampling_frequency;
 shiftSize = 0; % samples
 
+
 % data size in numbers. each data will be in size of M
-dataSize = 8000;
+dataSize = 800;
 
 % generate a random data
 data = randi([0 M-1], dataSize, 1).';
@@ -57,9 +58,11 @@ disp('channel');
 % pass signal through channel
 s2 = channelPass(s1, snr, shiftSize);
 
+tic
 disp('demodulate psk');
 % demodulate MPSK modulated signal. output will be some phasors.
 p1 = demodulatePSK(s2, M, signalLength, sampling_frequency, carrier_frequency);
+toc
 
 disp('diff decode (demodulate angles)');
 % convert phasors to numbers. this will do a differential decoding also.
