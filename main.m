@@ -10,7 +10,7 @@ pkg load communications;
 snr = 10; % deci Bells
 
 % PSK modulation size. 2 for BPSK. 4 for QPSK.
-M = 2; % number size. this is called M in this project.
+M = 4; % number size. this is called M in this project.
 
 % carrier signal frequency for modulating PSK
 carrier_frequency = 30*1000*1000; % 30 Mega Hertz
@@ -35,6 +35,12 @@ ParityBlockSize = 4; % 4 numbers.
 % shiftSize = shif_Time * sampling_frequency;
 shiftSize = 0; % samples
 
+% size of flag numbers to add to each block
+flagSize = 6;
+
+% size of a block to add a flag to.
+% size of block should be devidable to data blocks.
+flagBlockSize = 8;
 
 % data size in numbers. each data will be in size of M
 dataSize = 800;
@@ -46,13 +52,17 @@ disp('parity add');
 % add base M modular numbers to data
 k1 = parityAdd(data, ParityBlockSize, M);
 
+disp('add Flag');
+% differential coding
+k2 = addFlag(k1, flagBlockSize, flagSize);
+
 disp('diff code');
 % differential coding
-k2 = diffCode(k1, M);
+k3 = diffCode(k2, M);
 
 disp('modulate psk');
 % modulate data in MPSK
-s1 = modulatePSK(k2, M, signalLength, sampling_frequency, carrier_frequency);
+s1 = modulatePSK(k3, M, signalLength, sampling_frequency, carrier_frequency);
 
 disp('channel');
 % pass signal through channel
@@ -71,3 +81,5 @@ k3 = PSKangleDemod(p1, M);
 disp('parity check');
 % by checking added mod bits, check for errors.
 k4 = parityCheck(k3, ParityBlockSize, M);
+
+a = sum(xor(data, k4))
