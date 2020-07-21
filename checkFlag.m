@@ -18,7 +18,7 @@ function outputData = checkFlag (inputData, flagSize)
         % if the bit was a 1
         if inputData(b) == 1
             % add ones counter by 1
-            numberOfOnes += 1;
+            numberOfOnes = numberOfOnes + 1;
         % but if it was other than 1
         else
             % reset the ones counter
@@ -54,7 +54,7 @@ function outputData = checkFlag (inputData, flagSize)
         % so if bit was a 1
         if inputData(b) == 1
             % add ones counter by 1
-            numberOfOnes += 1;
+            numberOfOnes = numberOfOnes + 1;
         end
 
         if numberOfOnes ==flagSize - 1

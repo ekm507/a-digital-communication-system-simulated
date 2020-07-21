@@ -27,7 +27,7 @@ function outputData = addFlag (inputData, blockSize, flagSize)
     for b = inputData
 
         % add one to number of seen numbers. this is to know when to add a flag.
-        numberOfBits += 1;
+        numberOfBits = numberOfBits + 1;
 
         % so if there is a conflict in data
         if numberOfOnes >= flagSize - 1
@@ -48,7 +48,7 @@ function outputData = addFlag (inputData, blockSize, flagSize)
         % is number was one
         if b == 1
             % add 1 to number of cascaded ones.
-            numberOfOnes += 1;
+            numberOfOnes = numberOfOnes + 1;
         % but if it was not one
         else
             % reset counter of cascaded ones.
