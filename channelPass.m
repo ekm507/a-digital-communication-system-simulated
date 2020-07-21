@@ -13,12 +13,15 @@ function outputSignal = channelPass(inputSignal, SNR, shiftSize)
         shiftedSignal = noisySignal(shiftSize + 1 : end);
     
     % or if you are receiving the signal with a delay
-    else
+    elseif shiftSize < 0
         % generate empty signal with added noise
-        initialSignal = awgn(zeros([1 -shiftSize]), 10);
+        initialSignal = zeros(1, -shiftSize);
+        initialSignal = awgn(initialSignal, SNR);
 
         % shift the signal to the right
         shiftedSignal = [initialSignal noisySignal];
+    else
+        shiftedSignal = noisySignal;
     end
 
     % output will be the shifted signal

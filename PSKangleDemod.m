@@ -15,7 +15,7 @@ function outData = PSKangleDemod (phasors, M)
 
         norm_angle = alpha / ( 2 *pi ) * M;
         data = round(norm_angle);
-        data = mod(4-data, 4);
+        data = mod(M-data, M);
         demodulatedData(i) = data;
         lastTheta = theta;
     end
