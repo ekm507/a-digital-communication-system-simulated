@@ -43,7 +43,7 @@ flagSize = 6;
 flagBlockSize = 8;
 
 % data size in numbers. each data will be in size of M
-dataSize = 800;
+dataSize = 80;
 
 % generate a random data
 data = randi([0 M-1], dataSize, 1).';
@@ -58,15 +58,20 @@ k2 = addFlag(k1, flagBlockSize, flagSize);
 
 disp('diff code');
 % differential coding
-k3 = diffCode(k2, M);
+k3 = diffCode(k1, M);
 
 disp('modulate psk');
 % modulate data in MPSK
 s1 = modulatePSK(k3, M, signalLength, sampling_frequency, carrier_frequency);
 
+
+[b,a] = butter(1, carrier_frequency/ sampling_frequency * 2);
+
 disp('channel');
 % pass signal through channel
-s2 = channelPass(s1, snr, shiftSize);
+s2 = channelPass(s1, snr, shiftSize, b, a);
+
+
 
 tic
 disp('demodulate psk');
@@ -76,10 +81,10 @@ toc
 
 disp('diff decode (demodulate angles)');
 % convert phasors to numbers. this will do a differential decoding also.
-k3 = PSKangleDemod(p1, M);
+k4 = PSKangleDemod(p1, M);
 
 disp('parity check');
 % by checking added mod bits, check for errors.
-k4 = parityCheck(k3, ParityBlockSize, M);
+k5 = parityCheck(k4, ParityBlockSize, M);
 
-a = sum(xor(data, k4))
+number_of_errors = sum(xor(data, k5))
