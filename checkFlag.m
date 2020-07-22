@@ -38,30 +38,77 @@ function outputData = checkFlag (inputData, flagSize)
     % flag is found and data is cut
     end
 
+    FlagCheckedData = [];
+
+    q = size(inputData);
+    q = q(2);
+
+    while q > 1
+
+        % itterate over bits in input data
+        for b = 1:q
+
+            % if the bit was a 1
+            if inputData(b) == 1
+                % add ones counter by 1
+                numberOfOnes = numberOfOnes + 1;
+            % but if it was other than 1
+            else
+                % reset the ones counter
+                numberOfOnes = 0;
+            % counting number of ones done.
+            end
+
+            % if a flag is found
+            if numberOfOnes >= flagSize
+                FlagCheckedData = [FlagCheckedData; inputData(1: b - flagSize)];
+                % cut data from there and them start cleaning it
+                inputData = inputData(b + 2:end);
+
+                % flag is found. no need to continue itterating.
+                break
+            % checking for if there is a flag is done.
+            end
+        % flag is found and data is cut
+        end
+
+        q = size(inputData);
+        q = q(2);
+        
+    end
+
+
 
     % start cleaning data
 
     q = size(inputData);
     q = q(2)
 
-    buffer = [];
 
     % itterate over bits in data (that is cut)
-    for b = 1:q
+    for k = FlagCheckedData
         
-        buffer = [buffer inputData(b)];
+        buffer = k(1:flagSize + 1);
         
-        % so if bit was a 1
-        if inputData(b) == 1
-            % add ones counter by 1
-            numberOfOnes = numberOfOnes + 1;
-        end
+        q = size(k);
+        q = q(2);
 
-        if numberOfOnes ==flagSize - 1
-            if inputData(b + 1) == 1
-                
+        for b = 1:q
+
+                    
+            % so if bit was a 1
+            if inputData(b) == 1
+                % add ones counter by 1
+                numberOfOnes = numberOfOnes + 1;
             end
+
+            if numberOfOnes ==flagSize - 1
+                if inputData(b + 1) == 1
+                    
+                end
+            end
+
         end
-        
     end
+
 end
