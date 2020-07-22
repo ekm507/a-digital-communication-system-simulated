@@ -15,7 +15,7 @@ function outputPhasors = demodulatePSK(inputSignal, M, signalLength, sampling_fr
     % carrier with phase = 0
     carrierS = sin(carrier_frequency * 2*pi *T);
 
-    % carrier with phase = pi
+    % carrier with phase = π
     carrierC = sin(carrier_frequency * 2*pi *T + pi/2);
     
     % multiply signal by carriers.
@@ -23,7 +23,7 @@ function outputPhasors = demodulatePSK(inputSignal, M, signalLength, sampling_fr
     % signal multiplied by carrier with phase = 0
     sigS = inputSignal .* carrierS;
 
-    % signal multiplied by carrier with phase = pi
+    % signal multiplied by carrier with phase = π
     sigC = inputSignal .* carrierC;
 
     % output phasors will be stored here
@@ -42,7 +42,7 @@ function outputPhasors = demodulatePSK(inputSignal, M, signalLength, sampling_fr
         % mean of each block multiplied by carrier with phase = 0
         Multiplied_SignalS = mean(sigS(k:k+q-1));
 
-        % mean of each block multiplied by carrier with phase = pi
+        % mean of each block multiplied by carrier with phase = π
         Multiplied_SignalC = mean(sigC(k:k+q-1));
         
         % convert two numbers to a phasor

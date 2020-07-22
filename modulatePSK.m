@@ -17,7 +17,7 @@ function [signalOut] = modulatePSK (data, M, signalLength, sampling_frequency, c
     k = size(T);
     k = k(2);
 
-    % for M-PSK there will be M carrier signals. each with 2pi/M phase difference.
+    % for M-PSK there will be M carrier signals. each with 2π/M phase difference.
 
     % preallocate carriers.
     carrier = zeros(M,k);
