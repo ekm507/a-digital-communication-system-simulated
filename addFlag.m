@@ -11,8 +11,6 @@
 % size of flag. (actual size of flag is flagSize+2 . because of 2 added zeros.) )
 function outputData = addFlag (inputData, blockSize, flagSize)
 
-    % output Data will be stored Here
-    outputData = [];
 
     % number of consequent ones. when this number reaches flagsize, a zero will be added to end of that.
     numberOfOnes = 0;
@@ -22,6 +20,12 @@ function outputData = addFlag (inputData, blockSize, flagSize)
 
     % flag sequence. its like : 0 1 1 1 ... 1 0
     partFlag = [0 ones([1, flagSize]) 0];
+
+    % output Data will be stored Here
+    outputData = [];
+
+    % add an initial flag to data
+    outputData = [outputData partFlag];
 
     % itterate over numbers in input data
     for b = inputData
