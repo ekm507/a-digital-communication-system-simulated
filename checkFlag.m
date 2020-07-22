@@ -3,46 +3,66 @@
 
 function outputData = checkFlag (inputData, flagSize)
     
+    % output data will be stored here
     outputData = [];
     
-    numberOfOnes = 0;
 
     % first find a flag.
+    % then remove any data before that flag. ( and flag itself)
 
+    % get size of the data
     q = size(inputData);
     q = q(2);
+
+
+    % number of cascaded 1s seen.
+    numberOfOnes = 0;
 
     % itterate over bits in input data
     for b = 1:q
 
         % if the bit was a 1
         if inputData(b) == 1
+
             % add ones counter by 1
             numberOfOnes = numberOfOnes + 1;
+
         % but if it was other than 1
         else
+
             % reset the ones counter
             numberOfOnes = 0;
+
         % counting number of ones done.
         end
 
         % if a flag is found
         if numberOfOnes >= flagSize
+
             % cut data from there and them start cleaning it
             inputData = inputData(b + 2:end);
 
             % flag is found. no need to continue itterating.
             break
+
         % checking for if there is a flag is done.
         end
+
     % flag is found and data is cut
     end
 
+    % seperating data in blocks
+
+    % data blocks with removed flag will be stored in this matrix
+    % like this:
+    %[ data block 1; data block 2; ...]
     FlagCheckedData = [];
 
+    % get size of data with initial flag found and anything before that removed.
     q = size(inputData);
     q = q(2);
 
+    % while there is still data unchecked
     while q > 1
 
         % itterate over bits in input data
@@ -50,8 +70,10 @@ function outputData = checkFlag (inputData, flagSize)
 
             % if the bit was a 1
             if inputData(b) == 1
+            
                 % add ones counter by 1
                 numberOfOnes = numberOfOnes + 1;
+            
             % but if it was other than 1
             else
                 % reset the ones counter
@@ -61,7 +83,10 @@ function outputData = checkFlag (inputData, flagSize)
 
             % if a flag is found
             if numberOfOnes >= flagSize
+
+                % add data block to matrix
                 FlagCheckedData = [FlagCheckedData; inputData(1: b - flagSize)];
+            
                 % cut data from there and them start cleaning it
                 inputData = inputData(b + 2:end);
 
@@ -69,33 +94,35 @@ function outputData = checkFlag (inputData, flagSize)
                 break
             % checking for if there is a flag is done.
             end
-        % flag is found and data is cut
+
+        % flag is found. block is added. and data is cut
         end
 
+        % get new size of data. because initial part of it is cleaned now.
         q = size(inputData);
         q = q(2);
-        
+    
+    % separating data in blocks done.
     end
 
 
 
     % start cleaning data
 
-    q = size(inputData);
-    q = q(2)
-
-
-    % itterate over bits in data (that is cut)
+    % itterate over the blocks.
     for k = FlagCheckedData
+    % for each block do:
         
         buffer = k(1:flagSize + 1);
         
+        % get size of a block
         q = size(k);
         q = q(2);
 
+        % itterate over numbers in a block
         for b = 1:q
 
-                    
+
             % so if bit was a 1
             if inputData(b) == 1
                 % add ones counter by 1
@@ -108,7 +135,11 @@ function outputData = checkFlag (inputData, flagSize)
                 end
             end
 
+        % cleaning this data block done
         end
+    
+    % cleaning all data blocks done
     end
 
+% checking flags and cleaning data done.
 end
