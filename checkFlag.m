@@ -1,3 +1,12 @@
+% This function checks recognizable flags in data and removes them.
+% flags are added by addFlag function.
+% flags are like this: 0 1 1 1 ... 1 1 0
+% ( a sequence of ones by one zero at each side of sequence)
+% lets call number of Ones in data as "flagSize"
+% to avoid similarities, the bit after a sequence in data with (flegSize - 1) number of Ones, is not added to output data directly,
+% but a zero is added before that.
+
+
 % output data = f(data to find the flag in and remove added numbers from, size of blocks with flag added at the begining or end of each,
 % size of flag )
 

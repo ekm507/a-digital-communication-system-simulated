@@ -7,10 +7,10 @@ close all;
 pkg load communications;
 
 % signal to noise ratio in channel
-snr = 10; % deci Bells
+snr = 6; % deci Bells
 
 % PSK modulation size. 2 for BPSK. 4 for QPSK.
-M = 4; % number size. this is called M in this project.
+M = 2; % number size. this is called M in this project.
 
 % carrier signal frequency for modulating PSK
 carrier_frequency = 30*1000*1000; % 30 Mega Hertz
@@ -40,10 +40,10 @@ flagSize = 6;
 
 % size of a block to add a flag to.
 % size of block should be devidable to data blocks.
-flagBlockSize = 8;
+flagBlockSize = 80;
 
 % data size in numbers. each data will be in size of M
-dataSize = 80;
+dataSize = 80000;
 
 % generate a random data
 data = randi([0 M-1], dataSize, 1).';
@@ -64,14 +64,12 @@ disp('modulate psk');
 % modulate data in MPSK
 s1 = modulatePSK(k3, M, signalLength, sampling_frequency, carrier_frequency);
 
-
+% create a filter for channel
 [b,a] = butter(1, carrier_frequency/ sampling_frequency * 2);
 
 disp('channel');
 % pass signal through channel
 s2 = channelPass(s1, snr, shiftSize, b, a);
-
-
 
 tic
 disp('demodulate psk');
@@ -87,4 +85,5 @@ disp('parity check');
 % by checking added mod bits, check for errors.
 k5 = parityCheck(k4, ParityBlockSize, M);
 
+% show number if errors in output
 number_of_errors = sum(xor(data, k5))
