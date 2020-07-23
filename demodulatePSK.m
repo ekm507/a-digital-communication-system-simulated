@@ -29,7 +29,9 @@ function outputPhasors = demodulatePSK(inputSignal, M, signalLength, sampling_fr
     % output phasors will be stored here
     output_dem = zeros(1, floor(length(inputSignal) / q) +1);
 
-    q = signalLength * sampling_frequency;
+    % get size of each signal block. (size of each pulse in samples)
+    q = signalLength * sampling_frequency + 1;
+
     
     % Demodulation process starts
     for k = 1:q:length(inputSignal)
