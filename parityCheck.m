@@ -12,6 +12,9 @@
 % M (PSK modulation size - also data numbers base.) )
 function outputData = parityCheck (inputData, ParityBlockSize, M)
 
+    % number of errors detected by parity check will be stored here.
+    numberOdErrorsDetected = 0;
+
     % data with parity numbers removed from, will be stored here.
     ParityCheckedData = [];
 
@@ -39,6 +42,10 @@ function outputData = parityCheck (inputData, ParityBlockSize, M)
             % as an example you can count number of errors and calculate quality of system
         %    disp(i);
 
+            % count number of errors detected.
+            % we have found 1 error. so add it by 1.
+            numberOdErrorsDetected = numberOdErrorsDetected + 1;
+
         % checking for conflicts done
         end
 
@@ -48,6 +55,10 @@ function outputData = parityCheck (inputData, ParityBlockSize, M)
     % checlong for parity numbers and removing them from data done.
     end
 
+    % print number of errors detected by parity check:
+    disp("number of errors detected by parity check is:");
+    disp(numberOdErrorsDetected);
+    
     % return data with parity numbers removed.
     outputData = ParityCheckedData;
     
