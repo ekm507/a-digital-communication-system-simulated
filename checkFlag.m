@@ -15,7 +15,7 @@ function outputData = checkFlag (inputData, flagSize)
     % output data will be stored here
     outputData = [];
     
-
+    
     % first find a flag.
     % then remove any data before that flag. ( and flag itself)
 
@@ -65,15 +65,16 @@ function outputData = checkFlag (inputData, flagSize)
     % data blocks with removed flag will be stored in this matrix
     % like this:
     %[ data block 1; data block 2; ...]
-    FlagCheckedData = [];
+    FlagCheckedData = {};
 
     % get size of data with initial flag found and anything before that removed.
     q = size(inputData);
     q = q(2);
 
+    lastq = 1;
     % while there is still data unchecked
     while q > 1
-
+        numberOfOnes = 0;
         % itterate over bits in input data
         for b = 1:q
 
@@ -94,8 +95,8 @@ function outputData = checkFlag (inputData, flagSize)
             if numberOfOnes >= flagSize
 
                 % add data block to matrix
-                FlagCheckedData = [FlagCheckedData; inputData(1: b - flagSize)];
-            
+                FlagCheckedData = [FlagCheckedData, inputData(1: b - flagSize-1)];
+
                 % cut data from there and them start cleaning it
                 inputData = inputData(b + 2:end);
 
@@ -110,45 +111,71 @@ function outputData = checkFlag (inputData, flagSize)
         % get new size of data. because initial part of it is cleaned now.
         q = size(inputData);
         q = q(2);
-    
+        if lastq == q
+            FlagCheckedData = [FlagCheckedData, inputData];
+            break
+        end
+        lastq = q;
     % separating data in blocks done.
     end
 
 
-
     % start cleaning data
+
+    q = size(FlagCheckedData);
+    q = q(1);
+    outputData = {};
+
 
     % itterate over the blocks.
     for k = FlagCheckedData
     % for each block do:
+
+        k = cell2mat(k);
         
-        buffer = k(1:flagSize + 1);
+        tmpOutData = [];
+        buffer = [];
         
         % get size of a block
         q = size(k);
         q = q(2);
+
+        numberOfOnes = 0;
 
         % itterate over numbers in a block
         for b = 1:q
 
 
             % so if bit was a 1
-            if inputData(b) == 1
+            if k(b) == 1
                 % add ones counter by 1
                 numberOfOnes = numberOfOnes + 1;
+
+                buffer = [buffer k(b)];
+            else
+
+                if numberOfOnes ==flagSize - 1
+                    tmpOutData = [tmpOutData buffer];
+                    buffer = [];                        
+                else
+
+                    tmpOutData = [tmpOutData buffer k(b)];
+                    buffer = [];
+                end
+
+                numberOfOnes = 0;
             end
 
-            if numberOfOnes ==flagSize - 1
-                if inputData(b + 1) == 1
-                    
-                end
-            end
 
         % cleaning this data block done
         end
+        tmpOutData = [tmpOutData buffer];
+        tmpOutData;
+        outputData = [outputData tmpOutData];
     
     % cleaning all data blocks done
     end
+    outputData;
 
 % checking flags and cleaning data done.
 end

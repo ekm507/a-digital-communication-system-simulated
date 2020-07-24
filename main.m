@@ -36,17 +36,21 @@ ParityBlockSize = 4; % 4 numbers.
 shiftSize = 0; % samples
 
 % size of flag numbers to add to each block
-flagSize = 6;
+flagSize = 3;
 
 % size of a block to add a flag to.
 % size of block should be devidable to data blocks.
-flagBlockSize = 80;
+flagBlockSize = 8;
 
 % data size in numbers. each data will be in size of M
-dataSize = 80000;
+dataSize = 800;
 
 % generate a random data
 data = randi([0 M-1], dataSize, 1).';
+
+
+
+
 
 disp('parity add');
 % add base M modular numbers to data
@@ -58,7 +62,7 @@ k2 = addFlag(k1, flagBlockSize, flagSize);
 
 disp('diff code');
 % differential coding
-k3 = diffCode(k1, M);
+k3 = diffCode(k2, M);
 
 disp('modulate psk');
 % modulate data in MPSK
@@ -81,9 +85,20 @@ disp('diff decode (demodulate angles)');
 % convert phasors to numbers. this will do a differential decoding also.
 k4 = PSKangleDemod(p1, M);
 
+
+disp('check flags');
+% finding flags in data and removing additional zeros added by addflag
+%  (this is the reverse function of addFlag)  
+k5 = checkFlag(k4, flagSize);
+
+% output of flag check is a cell array.
+% that is because all data blocks are seperated to prevent errors in decoding.
+% but for now, we just need to concatenate all matrices in cells.
+k5 = cell2mat(k5);
+
 disp('parity check');
 % by checking added mod bits, check for errors.
-k5 = parityCheck(k4, ParityBlockSize, M);
+k6 = parityCheck(k5, ParityBlockSize, M);
 
 % show number if errors in output
-number_of_errors = sum(xor(data, k5))
+number_of_errors = sum(xor(data, k6))
