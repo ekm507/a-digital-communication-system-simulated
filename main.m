@@ -101,4 +101,4 @@ disp('parity check');
 k6 = parityCheck(k5, ParityBlockSize, M);
 
 % show number if errors in output
-number_of_errors = sum(xor(data, k6))
+number_of_errors = sum(data ~= k6)
