@@ -50,7 +50,7 @@ data = randi([0 M-1], dataSize, 1).';
 
 
 
-
+tic
 
 disp('parity add');
 % add base M modular numbers to data
@@ -75,11 +75,9 @@ disp('channel');
 % pass signal through channel
 s2 = channelPass(s1, snr, shiftSize, b, a);
 
-tic
 disp('demodulate psk');
 % demodulate MPSK modulated signal. output will be some phasors.
 p1 = demodulatePSK(s2, M, signalLength, sampling_frequency, carrier_frequency);
-toc
 
 disp('diff decode (demodulate angles)');
 % convert phasors to numbers. this will do a differential decoding also.
@@ -99,6 +97,8 @@ k5 = cell2mat(k5);
 disp('parity check');
 % by checking added mod bits, check for errors.
 k6 = parityCheck(k5, ParityBlockSize, M);
+
+toc
 
 % show number if errors in output
 number_of_errors = sum(data ~= k6)
