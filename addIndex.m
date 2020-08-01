@@ -7,13 +7,19 @@ function outputData = addIndex (inputData, blockSize, indexSize, M)
     sumBits = [zeros(1, indexSize - 1) 1];
     sumBits = 1;
 
-    q = floor(q / blockSize) * blockSize;
+    q0 = floor(q / blockSize) * blockSize;
 
-    for i = 1:blockSize:q
-        outputData = [outputData inputData(i:i+blockSize-1) indexBits];
+    for i = 1:blockSize:q0
+        outputData = [outputData indexBits inputData(i:i+blockSize-1) ];
         % increase index bits by 1
         % withdraw the carry
         [indexBits,_] = sumMatrix(indexBits, sumBits, M, 0);
     end
+
+    if q0 < q
+        outputData = [outputData indexBits inputData(q0 + 1:end) ];
+    end
+
+    
 
 end
