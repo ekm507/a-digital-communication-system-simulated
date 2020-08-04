@@ -15,7 +15,7 @@ function outText = sourceDecode (inputData, numbersPerSymbol, M)
     %% itterate through data blocks in input data.
     % each block represents a number
     % and a number represents a text character in ascii
-    for i = 1:numbersPerSymbol:q-numbersPerSymbol
+    for i = 1:numbersPerSymbol:q-numbersPerSymbol + 1
 
         % get a block of numbers to convert it.
         block = inputData(i:i+numbersPerSymbol-1);
