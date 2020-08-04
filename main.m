@@ -6,8 +6,12 @@ close all;
 % communication lib. for coding in MATLAB, comment the line below
 pkg load communications;
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% first set some preferences.
+
 % signal to noise ratio in channel
-snr = 6; % deci Bells
+snr = 10; % deci Bells
 
 % PSK modulation size. 2 for BPSK. 4 for QPSK.
 M = 2; % number size. this is called M in this project.
@@ -39,66 +43,166 @@ shiftSize = 0; % samples
 flagSize = 3;
 
 % size of a block to add a flag to.
+
+% for encoding text into bits.
+% this denotes nomber of bits should be used for coding each character of text.
+numbersPerSymbol = 8;
+
+% size of a block to add index bits to
+indexBlockSize = 10;
+
+% number of bits in index bits.
+indexSize = 2;
+
 % size of block should be devidable to data blocks.
-flagBlockSize = 8;
+% since flag is for finding begining of data blocks and there is
+% no other way provided to do so, then
+% it is recommended to use same blocks for adding flags and adding index to.
+% to do that, flag block size should be equal to block size of index added data. (output of addIndex)
+flagBlockSize = indexBlockSize + indexSize;
 
-% data size in numbers. each data will be in size of M
-dataSize = 800;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% get data.
 
-% generate a random data
-data = randi([0 M-1], dataSize, 1).';
+% if you want to use text as data, use source coding block.
+% otherwise, uncomment next lines.
+
+% % data size in numbers. each data will be in size of M
+% dataSize = 1600;
+% % generate a random data
+% data = randi([0 M-1], dataSize, 1).';
+
+% open a file to read text to send from
+file = fopen('input.txt');
+
+% read text to send.
+text = fread(file, '*char');
+
+% close the input file
+fclose(file);
+
+% transpose the text matrix. this is necessary for other functions to work properly.
+% because by default, output of fread function is a vertical matrix but we
+% need a siumple horizontal vector.
+text = text.';
+
+% encode text into bits. so we can process that further.
+data = sourceCode(text, numbersPerSymbol, M);
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% start the system
 
+% start ticking the timer. so at the end we
+% will know how much time the whole process takes.
 tic
+
+%%%%%%%%%%%%%%%%%%%%%% Adding parity %%%%%%%%%%%%%%%%%%%
 
 disp('parity add');
 % add base M modular numbers to data
-k1 = parityAdd(data, ParityBlockSize, M);
+parityAddedData = parityAdd(data, ParityBlockSize, M);
+
+
+%%%%%%%%%%%%%%%%%%%%%% Adding index %%%%%%%%%%%%%%%%%%%
+
+% add indices to data blocks
+indexAddedData = addIndex(parityAddedData, indexBlockSize, indexSize, M);
+
+
+%%%%%%%%%%%%%%%%%%%%%% Adding flags %%%%%%%%%%%%%%%%%%%
 
 disp('add Flag');
 % differential coding
-k2 = addFlag(k1, flagBlockSize, flagSize);
+flagAddedData = addFlag(indexAddedData, flagBlockSize + indexSize, flagSize);
+
+
+%%%%%%%%%%%%%%%%%%% differential coding %%%%%%%%%%%%%%%%
 
 disp('diff code');
 % differential coding
-k3 = diffCode(k2, M);
+diffCodedData = diffCode(flagAddedData, M);
+
+
+%%%%%%%%%%%%%%%%%%%%%% modulating PSK %%%%%%%%%%%%%%%%%%
 
 disp('modulate psk');
 % modulate data in MPSK
-s1 = modulatePSK(k3, M, signalLength, sampling_frequency, carrier_frequency);
+transmitterOutputSignal = modulatePSK(diffCodedData, M, signalLength, sampling_frequency, carrier_frequency);
+
+
+%%%%%%%%%%%% passing signal thorugh channal %%%%%%%%%%%%
 
 % create a filter for channel
 [b,a] = butter(1, carrier_frequency/ sampling_frequency * 2);
 
 disp('channel');
 % pass signal through channel
-s2 = channelPass(s1, snr, shiftSize, b, a);
+receiverInputSignal = channelPass(transmitterOutputSignal, snr, shiftSize, b, a);
+
+
+%%%%%%%%%%%%%%%%%%%%%% demodulating psk %%%%%%%%%%%%%%%%%
 
 disp('demodulate psk');
 % demodulate MPSK modulated signal. output will be some phasors.
-p1 = demodulatePSK(s2, M, signalLength, sampling_frequency, carrier_frequency);
+demodulatedPhasors = demodulatePSK(receiverInputSignal, M, signalLength, sampling_frequency, carrier_frequency);
+
+
+%%%%%%%%%%%%%%%%% differential decoding %%%%%%%%%%%%%%%%%
 
 disp('diff decode (demodulate angles)');
 % convert phasors to numbers. this will do a differential decoding also.
-k4 = PSKangleDemod(p1, M);
+diffDecodedData = PSKangleDemod(demodulatedPhasors, M);
 
+
+%%%%%%%%%%%%%%%%%%%%%% checking flags %%%%%%%%%%%%%%%%%%%
 
 disp('check flags');
 % finding flags in data and removing additional zeros added by addflag
 %  (this is the reverse function of addFlag)  
-k5 = checkFlag(k4, flagSize);
+flagCheckedData = checkFlag(diffDecodedData, flagSize);
+
+
+%%%%%%%%%%%%%%%%%%%%%% checking indices %%%%%%%%%%%%%%%%%%%
 
 % output of flag check is a cell array.
 % that is because all data blocks are seperated to prevent errors in decoding.
 % but for now, we just need to concatenate all matrices in cells.
-k5 = cell2mat(k5);
+
+indexCheckedData = checkIndex(flagCheckedData, 2);
+
+k5_2 = indexCheckedData(:, 2);
+
+k5_2 = k5_2.';
+
+k5_3 = cell2mat(k5_2);
+
+
+%%%%%%%%%%%%%%%%%%%%%% checking parity %%%%%%%%%%%%%%%%%%%
 
 disp('parity check');
 % by checking added mod bits, check for errors.
-k6 = parityCheck(k5, ParityBlockSize, M);
+parityCheckedData = parityCheck(k5_3, ParityBlockSize, M);
 
+
+% transmission finish.
+% so output the time this process took.
 toc
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% done. check for errors and so.
+
+% decode bits and re-encode it to text.
+outText = sourceDecode(parityCheckedData, numbersPerSymbol, M);
+
+% open a file to write output into
+file = fopen('output.txt', 'w');
+
+% write output text into the file
+fwrite(file, outText);
+
+% close the output file
+fclose(file);
+
 % show number if errors in output
-number_of_errors = sum(data ~= k6)
+number_of_errors = sum(data ~= parityCheckedData)
