@@ -11,7 +11,7 @@ pkg load communications;
 % first set some preferences.
 
 % signal to noise ratio in channel
-snr = 10; % deci Bells
+snr = 0; % deci Bells
 
 % PSK modulation size. 2 for BPSK. 4 for QPSK.
 M = 2; % number size. this is called M in this project.
@@ -24,7 +24,7 @@ carrier_frequency = 30*1000*1000; % 30 Mega Hertz
 sampling_frequency = carrier_frequency * 200; % 200 times carrier frequency.
 
 % signal length in phase ( cycles ).
-signal_phase_length = 2 * 2*pi; % 2 cycles
+signal_phase_length = 1 * 2*pi; % 2 cycles
 
 % signal length in samples.
 signalLength = signal_phase_length / (2 * pi * carrier_frequency); % seconds
@@ -61,6 +61,26 @@ indexSize = 2;
 % to do that, flag block size should be equal to block size of index added data. (output of addIndex)
 flagBlockSize = indexBlockSize + indexSize;
 
+
+%%%%%%%%% turn system blocks on or off %%%%%%%%%%%%
+
+% parity adding and parity checking blocks
+should_addParity = true;
+
+% flag adding and flag checking blocks
+should_addFlag = true;
+
+% index adding and index checking blocks
+should_addIndex = true;
+
+% modulation and demodulation blocks
+should_modulate = true;
+
+% channel block
+should_passChannel = true;
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % get data.
 
@@ -68,9 +88,9 @@ flagBlockSize = indexBlockSize + indexSize;
 % otherwise, uncomment next lines.
 
 % % data size in numbers. each data will be in size of M
-% dataSize = 1600;
+dataSize = 16000;
 % % generate a random data
-% data = randi([0 M-1], dataSize, 1).';
+data = randi([0 M-1], dataSize, 1).';
 
 % open a file to read text to send from
 file = fopen('input.txt');
@@ -87,8 +107,18 @@ fclose(file);
 text = text.';
 
 % encode text into bits. so we can process that further.
-data = sourceCode(text, numbersPerSymbol, M);
+%data = sourceCode(text, numbersPerSymbol, M);
 
+% data will be changed passing through system.
+% to be able to check errors at the end of the system,
+% initial data should be stored in safe
+initialData = data;
+
+% System block diagram is like this
+
+% text --> SourceCode --> parityAdd --> addIndex --> addFlag --> diffCode -->
+% modulate --> channel --> demodulate --> angle/diff-Decode --> flagCheck -->
+% indexCheck --> parityCheck --> sourceDecode --> text
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % start the system
@@ -99,68 +129,119 @@ tic
 
 %%%%%%%%%%%%%%%%%%%%%% Adding parity %%%%%%%%%%%%%%%%%%%
 
-disp('parity add');
-% add base M modular numbers to data
-parityAddedData = parityAdd(data, ParityBlockSize, M);
+% check if this block is turned on
+if should_addParity == true
 
+    disp('parity add');
+    % add base M modular numbers to data
+    data = parityAdd(data, ParityBlockSize, M);
+
+end
 
 %%%%%%%%%%%%%%%%%%%%%% Adding index %%%%%%%%%%%%%%%%%%%
 
-% add indices to data blocks
-indexAddedData = addIndex(parityAddedData, indexBlockSize, indexSize, M);
+% check if this block is turned on
+if should_addIndex == true
 
+    % add indices to data blocks
+    data = addIndex(data, indexBlockSize, indexSize, M);
+
+end
 
 %%%%%%%%%%%%%%%%%%%%%% Adding flags %%%%%%%%%%%%%%%%%%%
 
-disp('add Flag');
-% differential coding
-flagAddedData = addFlag(indexAddedData, flagBlockSize + indexSize, flagSize);
 
+% check if this block is turned on
+if should_addFlag == true
+
+    disp('add Flag');
+    % differential coding
+    data = addFlag(data, flagBlockSize, flagSize);
+
+end
 
 %%%%%%%%%%%%%%%%%%% differential coding %%%%%%%%%%%%%%%%
 
 disp('diff code');
 % differential coding
-diffCodedData = diffCode(flagAddedData, M);
+data = diffCode(data, M);
 
 
 %%%%%%%%%%%%%%%%%%%%%% modulating PSK %%%%%%%%%%%%%%%%%%
 
-disp('modulate psk');
-% modulate data in MPSK
-transmitterOutputSignal = modulatePSK(diffCodedData, M, signalLength, sampling_frequency, carrier_frequency);
+% check if this block is turned on
+if should_modulate == true
 
+    disp('modulate psk');
+    % modulate data in MPSK
+    signal = modulatePSK(data, M, signalLength, sampling_frequency, carrier_frequency);
+
+% but if this block was off, to prevent errors in other blocks, we should generate a signal.
+% for now, an empty signal is OK.
+else
+
+    % create empty signal for preventing errors in other blocks
+    signal = [];
+
+end
 
 %%%%%%%%%%%% passing signal thorugh channal %%%%%%%%%%%%
 
-% create a filter for channel
-[b,a] = butter(1, carrier_frequency/ sampling_frequency * 2);
 
-disp('channel');
-% pass signal through channel
-receiverInputSignal = channelPass(transmitterOutputSignal, snr, shiftSize, b, a);
+% check if this block is turned on
+if should_passChannel == true
 
+    % create a filter for channel
+    [b,a] = butter(1, carrier_frequency/ sampling_frequency * 2);
+
+    disp('channel');
+    % pass signal through channel
+    signal = channelPass(signal, snr, shiftSize, b, a);
+
+end
 
 %%%%%%%%%%%%%%%%%%%%%% demodulating psk %%%%%%%%%%%%%%%%%
 
-disp('demodulate psk');
-% demodulate MPSK modulated signal. output will be some phasors.
-demodulatedPhasors = demodulatePSK(receiverInputSignal, M, signalLength, sampling_frequency, carrier_frequency);
+% check if this block is turned on
+if should_modulate == true
 
+    disp('demodulate psk');
+    % demodulate MPSK modulated signal. output will be some phasors.
+    demodulatedPhasors = demodulatePSK(signal, M, signalLength, sampling_frequency, carrier_frequency);
+
+end
 
 %%%%%%%%%%%%%%%%% differential decoding %%%%%%%%%%%%%%%%%
 
-disp('diff decode (demodulate angles)');
-% convert phasors to numbers. this will do a differential decoding also.
-diffDecodedData = PSKangleDemod(demodulatedPhasors, M);
+% check if this block is turned on
+if should_modulate == true
 
+    disp('diff decode (demodulate angles)');
+    % convert phasors to numbers. this will do a differential decoding also.
+    data = PSKangleDemod(demodulatedPhasors, M);
+
+% but if modulation is turned off, then a pure differential decoding is needed.
+else
+
+    disp('diff Decode')
+    % decode data differentially
+    data = diffDecode(data, M);
+
+end
 
 %%%%%%%%%%%%%%%%%%%%%% checking flags %%%%%%%%%%%%%%%%%%%
 
-disp('check flags');
-% finding flags in data and removing additional zeros added by addflag
-%  (this is the reverse function of addFlag)  
-flagCheckedData = checkFlag(diffDecodedData, flagSize);
+
+% check if this block is turned on
+if should_addFlag == true
+
+    disp('check flags');
+    % finding flags in data and removing additional zeros added by addflag
+    %  (this is the reverse function of addFlag)  
+    data = checkFlag(data, flagSize);
+
+end
+
 
 
 %%%%%%%%%%%%%%%%%%%%%% checking indices %%%%%%%%%%%%%%%%%%%
@@ -169,21 +250,46 @@ flagCheckedData = checkFlag(diffDecodedData, flagSize);
 % that is because all data blocks are seperated to prevent errors in decoding.
 % but for now, we just need to concatenate all matrices in cells.
 
-indexCheckedData = checkIndex(flagCheckedData, 2);
+% check if this block is turned on
+if should_addIndex == true
 
-k5_2 = indexCheckedData(:, 2);
+    % if checkFlag block is off, then there is no need to convert data from cell to matrix
+    % otherwise it is needed
+    if should_addFlag == true
 
-k5_2 = k5_2.';
+        % convert output of checkFlag which is a cell array, to a plain vector
+        data = cell2mat(data);
 
-k5_3 = cell2mat(k5_2);
+    end
 
+    % remove indices from data
+    data = indexRemove(data, indexBlockSize, indexSize);
+
+% but if block is turned off, output of checkFlag which is a cell array,
+% should be turned into a vector to avoid errors in other blocks
+else
+    
+    % if checkFlag block is off, then there is no need to convert data from cell to matrix
+    % otherwise it is needed
+    if should_addFlag == true
+
+        % convert output of checkFlag which is a cell array, to a plain vector
+        data = cell2mat(data);
+
+    end
+
+end
 
 %%%%%%%%%%%%%%%%%%%%%% checking parity %%%%%%%%%%%%%%%%%%%
 
-disp('parity check');
-% by checking added mod bits, check for errors.
-parityCheckedData = parityCheck(k5_3, ParityBlockSize, M);
+% check if this block is turned on
+if should_addParity == true
 
+    disp('parity check');
+    % by checking added mod bits, check for errors.
+    data = parityCheck(data, ParityBlockSize, M);
+
+end
 
 % transmission finish.
 % so output the time this process took.
@@ -193,7 +299,11 @@ toc
 % done. check for errors and so.
 
 % decode bits and re-encode it to text.
-outText = sourceDecode(parityCheckedData, numbersPerSymbol, M);
+outText = sourceDecode(data, numbersPerSymbol, M);
+
+% display system output text
+outText
+
 
 % open a file to write output into
 file = fopen('output.txt', 'w');
@@ -205,4 +315,4 @@ fwrite(file, outText);
 fclose(file);
 
 % show number if errors in output
-number_of_errors = sum(data ~= parityCheckedData)
+number_of_errors = sum(data ~= initialData)
