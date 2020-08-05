@@ -34,7 +34,7 @@ function outputData = addIndex (inputData, blockSize, indexSize, M)
         % increase index bits by 1
         % withdraw the carry
         % get new index bits.
-        [indexBits,_] = sumMatrix(indexBits, sumBits, M, 0);
+        [indexBits, carryOut] = sumMatrix(indexBits, sumBits, M, 0);
 
     %
     end
