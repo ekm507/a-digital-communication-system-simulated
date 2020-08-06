@@ -36,11 +36,15 @@ function outputPhasors = demodulatePSK(inputSignal, M, signalLength, sampling_fr
     % get number of pulses in signal.
     n = q0 / q;
 
+    n = floor(n);
+
+    newSize = q * n;
+
     % seperate sine multiplied signal into pulses
-    Blocks_of_sigS = reshape(sigS, q, n);
+    Blocks_of_sigS = reshape(sigS(1:q*n), q, n);
 
     % seperate cosine multiplied signal into pulses
-    Blocks_of_sigC = reshape(sigC, q, n);
+    Blocks_of_sigC = reshape(sigC(1:q*n), q, n);
 
     % get mean of each signal block. mean works like integral.
     % having these 2 means, we can calculate PSK phasors for each pulse
