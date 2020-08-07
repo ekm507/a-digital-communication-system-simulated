@@ -68,6 +68,10 @@ flagBlockSize = indexBlockSize + indexSize;
 % having a few parallel antennas may increase signal quality and give you better BER.
 numberOfReceiverAntennas = 1;
 
+% one-time-pad encryption block size
+cryptBlockSize = 8;
+
+
 %%%%%%%%% turn system blocks on or off %%%%%%%%%%%%
 
 % parity adding and parity checking blocks
@@ -85,6 +89,8 @@ should_modulate = true;
 % channel block
 should_passChannel = true;
 
+% cryptography blocks
+should_encrypt = true;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -133,14 +139,27 @@ initialData = data;
 % will know how much time the whole process takes.
 tic
 
-%%%%%%%%%%%%%%%%%%%%%% Adding parity %%%%%%%%%%%%%%%%%%%
-q = length(data);
-cryptBlockSize = 8;
-numberOfKeys = floor(q / cryptBlockSize);
-keys = generateCryptKeys(numberOfKeys, cryptBlockSize, M);
+%%%%%%%%%%%%%%%%%%%%%% encrypt data %%%%%%%%%%%%%%%%%%%
+if should_encrypt == true
 
-data = encrypt(data, keys, cryptBlockSize, M);
-p = data;
+    % get length of data
+    q = length(data);
+
+    % to encrypt data, first we need to generate some keys.
+    % the same keys will be used in decryption.
+
+    % calculate number of keys needed to be generated
+    numberOfKeys = floor(q / cryptBlockSize);
+    
+    % generate one-time-pad keys
+    keys = generateCryptKeys(numberOfKeys, cryptBlockSize, M);
+
+    % encrypt data using one-time-pad keys
+    data = encrypt(data, keys, cryptBlockSize, M);
+
+end
+
+%%%%%%%%%%%%%%%%%%%%%% Adding parity %%%%%%%%%%%%%%%%%%%
 
 % check if this block is turned on
 if should_addParity == true
@@ -328,7 +347,14 @@ end
 % so output the time this process took.
 toc
 
-data = decrypt(data, keys, cryptBlockSize, M);
+if should_encrypt == true
+
+    % decrypt data using  one-time-pad keys.
+    % keys should be generated in the transmitter part and
+    % the same keys should be used here.
+    data = decrypt(data, keys, cryptBlockSize, M);
+
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % done. check for errors and so.
