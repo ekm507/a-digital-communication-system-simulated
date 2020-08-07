@@ -64,6 +64,9 @@ indexSize = 2;
 % to do that, flag block size should be equal to block size of index added data. (output of addIndex)
 flagBlockSize = indexBlockSize + indexSize;
 
+% set number of receiver antennas after channel.
+% having a few parallel antennas may increase signal quality and give you better BER.
+numberOfReceiverAntennas = 1;
 
 %%%%%%%%% turn system blocks on or off %%%%%%%%%%%%
 
@@ -205,8 +208,24 @@ if should_passChannel == true
     [b,a] = butter(1, carrier_frequency/ sampling_frequency * 2);
 
     disp('channel');
-    % pass signal through channel
-    signal = channelPass(signal, snr, shiftSize, b, a);
+
+    % there might be several antennas in receiver.
+    % input signal of each antenna will be stored here
+    antennaSignal = [];
+
+    % for each antenna, we simulate the same channel
+    % because we assume that all the conditions are same for all of them.
+    % for each antenna do:
+    for i = 1:numberOfReceiverAntennas
+
+        % pass signal through channel
+        antennaSignal(i, :) = channelPass(signal, snr, shiftSize, b, a);
+
+    % receiving signal through same channel but with multiple antennas done.
+    end
+    
+    % now its time to sum all the received signals.
+    signal = sum(antennaSignal, 1);
 
 end
 
