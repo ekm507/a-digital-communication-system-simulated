@@ -13,8 +13,6 @@
 
 * fix problems with `M` `=` `4`
 
-* create cryptography blocks
-
 * add documents to undocumented code parts
 
 * write a nice friendly `README.md`
