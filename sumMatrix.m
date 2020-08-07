@@ -1,3 +1,6 @@
+% this function calculates some of two vectors. each representing a number in base M
+
+% [sum of two vectors, carry out] = f(vector1, vector2, M, carry in)
 function [outputMat, carry] = sumMatrix (mat1, mat2, M, carry)
 
     q1 = size(mat1);
