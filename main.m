@@ -179,6 +179,10 @@ disp('diff code');
 % differential coding
 data = diffCode(data, M);
 
+% now this data is the exact data that is going to get modulated.
+% lets display size of it!
+disp('data size =')
+disp(length(data))
 
 %%%%%%%%%%%%%%%%%%%%%% modulating PSK %%%%%%%%%%%%%%%%%%
 
