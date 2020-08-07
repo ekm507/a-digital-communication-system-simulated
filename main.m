@@ -11,7 +11,7 @@ pkg load communications;
 % first set some preferences.
 
 % signal to noise ratio in channel
-snr = -20; % deci Bells
+snr = 0; % deci Bells
 
 % PSK modulation size. 2 for BPSK. 4 for QPSK.
 M = 2; % number size. this is called M in this project.
