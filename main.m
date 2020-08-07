@@ -11,7 +11,7 @@ pkg load communications;
 % first set some preferences.
 
 % signal to noise ratio in channel
-snr = 0; % deci Bells
+snr = -20; % deci Bells
 
 % PSK modulation size. 2 for BPSK. 4 for QPSK.
 M = 2; % number size. this is called M in this project.
@@ -24,10 +24,13 @@ carrier_frequency = 30*1000*1000; % 30 Mega Hertz
 sampling_frequency = carrier_frequency * 200; % 200 times carrier frequency.
 
 % signal length in phase ( cycles ).
-signal_phase_length = 1 * 2*pi; % 2 cycles
+signal_phase_length = 2 * 2*pi; % 2 cycles
 
 % signal length in samples.
 signalLength = signal_phase_length / (2 * pi * carrier_frequency); % seconds
+
+disp('channel bit rate =')
+disp(log(M) / log(2) * carrier_frequency * 2 * pi / signal_phase_length);
 
 % block size for parity adding algorithm
 % this is not actual parity in M > 2. it is mod of sum of data to M.
@@ -68,7 +71,7 @@ flagBlockSize = indexBlockSize + indexSize;
 should_addParity = true;
 
 % flag adding and flag checking blocks
-should_addFlag = true;
+should_addFlag = false;
 
 % index adding and index checking blocks
 should_addIndex = true;
@@ -107,7 +110,7 @@ fclose(file);
 text = text.';
 
 % encode text into bits. so we can process that further.
-%data = sourceCode(text, numbersPerSymbol, M);
+data = sourceCode(text, numbersPerSymbol, M);
 
 % data will be changed passing through system.
 % to be able to check errors at the end of the system,
@@ -128,6 +131,13 @@ initialData = data;
 tic
 
 %%%%%%%%%%%%%%%%%%%%%% Adding parity %%%%%%%%%%%%%%%%%%%
+q = length(data);
+cryptBlockSize = 8;
+numberOfKeys = floor(q / cryptBlockSize);
+keys = generateCryptKeys(numberOfKeys, cryptBlockSize, M);
+
+data = encrypt(data, keys, cryptBlockSize, M);
+p = data;
 
 % check if this block is turned on
 if should_addParity == true
@@ -294,6 +304,8 @@ end
 % transmission finish.
 % so output the time this process took.
 toc
+
+data = decrypt(data, keys, cryptBlockSize, M);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % done. check for errors and so.
