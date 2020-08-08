@@ -29,8 +29,8 @@ signal_phase_length = 2 * 2*pi; % 2 cycles
 % signal length in samples.
 signalLength = signal_phase_length / (2 * pi * carrier_frequency); % seconds
 
-disp('channel bit rate =')
-disp(log(M) / log(2) * carrier_frequency * 2 * pi / signal_phase_length);
+bitRate = log(M) / log(2) * carrier_frequency * 2 * pi / signal_phase_length;
+disp(cstrcat('channel bit rate = ', num2str(bitRate)));
 
 % block size for parity adding algorithm
 % this is not actual parity in M > 2. it is mod of sum of data to M.
@@ -201,7 +201,7 @@ data = diffCode(data, M);
 % now this data is the exact data that is going to get modulated.
 % lets display size of it!
 disp('data size =')
-disp(length(data))
+disp(cstrcat("data size = ", num2str(length(data))));
 
 %%%%%%%%%%%%%%%%%%%%%% modulating PSK %%%%%%%%%%%%%%%%%%
 
