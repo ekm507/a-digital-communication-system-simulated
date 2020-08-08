@@ -71,6 +71,8 @@ numberOfReceiverAntennas = 1;
 % one-time-pad encryption block size
 cryptBlockSize = 8;
 
+repeatSize = 3;
+
 
 %%%%%%%%% turn system blocks on or off %%%%%%%%%%%%
 
@@ -92,6 +94,8 @@ should_passChannel = true;
 % cryptography blocks
 should_encrypt = true;
 
+% repeating data
+should_repeatCode = true;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % get data.
@@ -192,8 +196,13 @@ if should_addFlag == true
 
 end
 
-%%%%%%%%%%%%%%%%%%% differential coding %%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%% repeat coding %%%%%%%%%%%%%%%%%%%%%%
 
+if should_repeatCode == true
+    data = repeatCode(data, repeatSize);
+end
+
+%%%%%%%%%%%%%%%%%%% differential coding %%%%%%%%%%%%%%%%
 disp('diff code');
 % differential coding
 data = diffCode(data, M);
@@ -279,6 +288,12 @@ else
     % decode data differentially
     data = diffDecode(data, M);
 
+end
+
+%%%%%%%%%%%%%%%%%%% repeat decoding %%%%%%%%%%%%%%%%%%%%%
+
+if should_repeatCode == true
+    data = repeatDecode(data, repeatSize);
 end
 
 %%%%%%%%%%%%%%%%%%%%%% checking flags %%%%%%%%%%%%%%%%%%%
