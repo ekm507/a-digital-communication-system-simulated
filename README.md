@@ -18,3 +18,5 @@
 * write a nice friendly `README.md`
 
 * demodulation clock sync should be fixed with shifted signal
+
+* check if adding repeat code is better than increasing pulse width
