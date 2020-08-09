@@ -161,6 +161,8 @@ if should_encrypt == true
     % encrypt data using one-time-pad keys
     data = encrypt(data, keys, cryptBlockSize, M);
 
+    encryptedData = data;
+
 end
 
 %%%%%%%%%%%%%%%%%%%%%% Adding parity %%%%%%%%%%%%%%%%%%%
@@ -172,6 +174,8 @@ if should_addParity == true
     % add base M modular numbers to data
     data = parityAdd(data, ParityBlockSize, M);
 
+    parityAddedData = data;
+
 end
 
 %%%%%%%%%%%%%%%%%%%%%% Adding index %%%%%%%%%%%%%%%%%%%
@@ -181,6 +185,8 @@ if should_addIndex == true
 
     % add indices to data blocks
     data = addIndex(data, indexBlockSize, indexSize, M);
+
+    indexAddedData = data;
 
 end
 
@@ -194,6 +200,8 @@ if should_addFlag == true
     % differential coding
     data = addFlag(data, flagBlockSize, flagSize);
 
+    flagAddedData = data;
+
 end
 
 %%%%%%%%%%%%%%%%%%% repeat coding %%%%%%%%%%%%%%%%%%%%%%
@@ -204,12 +212,16 @@ if should_repeatCode == true
     % do repeat codig on data.
     data = repeatCode(data, repeatSize);
 
+    repeatCodedData = data;
+
 end
 
 %%%%%%%%%%%%%%%%%%% differential coding %%%%%%%%%%%%%%%%
 disp('diff code');
 % differential coding
 data = diffCode(data, M);
+
+diffCodedData = data;
 
 % now this data is the exact data that is going to get modulated.
 % lets display size of it!
@@ -223,6 +235,8 @@ if should_modulate == true
     disp('modulate psk');
     % modulate data in MPSK
     signal = modulatePSK(data, M, signalLength, sampling_frequency, carrier_frequency);
+
+    modulatedSignal = signal;
 
 % but if this block was off, to prevent errors in other blocks, we should generate a signal.
 % for now, an empty signal is OK.
@@ -284,6 +298,7 @@ if should_modulate == true
     % convert phasors to numbers. this will do a differential decoding also.
     data = PSKangleDemod(demodulatedPhasors, M);
 
+
 % but if modulation is turned off, then a pure differential decoding is needed.
 else
 
@@ -293,6 +308,8 @@ else
 
 end
 
+diffDecodedData = data;
+
 %%%%%%%%%%%%%%%%%%% repeat decoding %%%%%%%%%%%%%%%%%%%%%
 
 % check if this block is turned on
@@ -300,6 +317,8 @@ if should_repeatCode == true
 
     % do repeat decoding
     data = repeatDecode(data, repeatSize);
+
+    repeatDecodedData = data;
 
 end
 
@@ -313,6 +332,8 @@ if should_addFlag == true
     % finding flags in data and removing additional zeros added by addflag
     %  (this is the reverse function of addFlag)  
     data = checkFlag(data, flagSize);
+
+    flagCheckedData = data;
 
 end
 
@@ -339,6 +360,8 @@ if should_addIndex == true
     % remove indices from data
     data = indexRemove(data, indexBlockSize, indexSize);
 
+    indexRemovedData = data;
+
 % but if block is turned off, output of checkFlag which is a cell array,
 % should be turned into a vector to avoid errors in other blocks
 else
@@ -363,6 +386,8 @@ if should_addParity == true
     % by checking added mod bits, check for errors.
     data = parityCheck(data, ParityBlockSize, M);
 
+    parityCheckedData = data;
+
 end
 
 % transmission finish.
@@ -375,6 +400,8 @@ if should_encrypt == true
     % keys should be generated in the transmitter part and
     % the same keys should be used here.
     data = decrypt(data, keys, cryptBlockSize, M);
+
+    decryptedData = data;
 
 end
 
