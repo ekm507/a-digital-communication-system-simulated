@@ -14,7 +14,7 @@ pkg load communications;
 snr = -10; % deci Bells
 
 % PSK modulation size. 2 for BPSK. 4 for QPSK.
-M = 4; % number size. this is called M in this project.
+M = 2; % number size. this is called M in this project.
 
 % carrier signal frequency for modulating PSK
 carrier_frequency = 30*1000*1000; % 30 Mega Hertz
@@ -24,7 +24,7 @@ carrier_frequency = 30*1000*1000; % 30 Mega Hertz
 sampling_frequency = carrier_frequency * 200; % 200 times carrier frequency.
 
 % signal length in phase ( cycles ).
-signal_phase_length = 1 * 2*pi; % 2 cycles
+signal_phase_length = 2 * 2*pi; % 2 cycles
 
 % signal length in samples.
 signalLength = signal_phase_length / (2 * pi * carrier_frequency); % seconds
@@ -79,14 +79,20 @@ repeatSize = 3;
 % reading text from file
 should_sourceCode = true;
 
+% cryptography blocks
+should_encrypt = true;
+
 % parity adding and parity checking blocks
 should_addParity = true;
+
+% index adding and index checking blocks
+should_addIndex = true;
 
 % flag adding and flag checking blocks
 should_addFlag = false;
 
-% index adding and index checking blocks
-should_addIndex = true;
+% repeating data
+should_repeatCode = true;
 
 % modulation and demodulation blocks
 should_modulate = true;
@@ -94,11 +100,8 @@ should_modulate = true;
 % channel block
 should_passChannel = true;
 
-% cryptography blocks
-should_encrypt = true;
-
-% repeating data
-should_repeatCode = true;
+% check if receiver should use several anteennas
+should_useSeveralAntennas = true;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % get data.
@@ -270,23 +273,37 @@ if should_passChannel == true
 
     disp('channel');
 
-    % there might be several antennas in receiver.
-    % input signal of each antenna will be stored here
-    antennaSignal = [];
+    % check if several antennas in receiver should be used.
+    if should_useSeveralAntennas == true
 
-    % for each antenna, we simulate the same channel
-    % because we assume that all the conditions are same for all of them.
-    % for each antenna do:
-    for i = 1:numberOfReceiverAntennas
+        % there might be several antennas in receiver.
+        % input signal of each antenna will be stored here
+        antennaSignal = [];
 
-        % pass signal through channel
-        antennaSignal(i, :) = channelPass(signal, snr, shiftSize, b, a);
+        % for each antenna, we simulate the same channel
+        % because we assume that all the conditions are same for all of them.
+        % for each antenna do:
+        for i = 1:numberOfReceiverAntennas
 
-    % receiving signal through same channel but with multiple antennas done.
+            % pass signal through channel
+            antennaSignal(i, :) = channelPass(signal, snr, shiftSize, b, a);
+
+        % receiving signal through same channel but with multiple antennas done.
+        end
+
+        % now its time to sum all the received signals.
+        signal = sum(antennaSignal, 1);
+
+    % if there is only 1 antenna needed, just do 1 channelPass for it
+    else
+
+        % pass signal through channel.    
+        signal = channelPass(signal, snr, shiftSize, b, a);
+
+        antennaSignal = signal;
+
     end
-    
-    % now its time to sum all the received signals.
-    signal = sum(antennaSignal, 1);
+
 
 end
 
