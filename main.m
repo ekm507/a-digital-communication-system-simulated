@@ -14,7 +14,7 @@ pkg load communications;
 snr = -10; % deci Bells
 
 % PSK modulation size. 2 for BPSK. 4 for QPSK.
-M = 2; % number size. this is called M in this project.
+M = 4; % number size. this is called M in this project.
 
 % carrier signal frequency for modulating PSK
 carrier_frequency = 30*1000*1000; % 30 Mega Hertz
@@ -24,7 +24,7 @@ carrier_frequency = 30*1000*1000; % 30 Mega Hertz
 sampling_frequency = carrier_frequency * 200; % 200 times carrier frequency.
 
 % signal length in phase ( cycles ).
-signal_phase_length = 2 * 2*pi; % 2 cycles
+signal_phase_length = 1 * 2*pi; % 2 cycles
 
 % signal length in samples.
 signalLength = signal_phase_length / (2 * pi * carrier_frequency); % seconds
@@ -76,6 +76,9 @@ repeatSize = 3;
 
 %%%%%%%%% turn system blocks on or off %%%%%%%%%%%%
 
+% reading text from file
+should_sourceCode = true;
+
 % parity adding and parity checking blocks
 should_addParity = true;
 
@@ -105,8 +108,6 @@ should_repeatCode = true;
 
 % % data size in numbers. each data will be in size of M
 dataSize = 16000;
-% % generate a random data
-data = randi([0 M-1], dataSize, 1).';
 
 % open a file to read text to send from
 file = fopen('input.txt');
@@ -122,8 +123,19 @@ fclose(file);
 % need a siumple horizontal vector.
 text = text.';
 
-% encode text into bits. so we can process that further.
-data = sourceCode(text, numbersPerSymbol, M);
+% check if data should be read from file
+if should_sourceCode = true
+    
+    % encode text into bits. so we can process that further.
+    data = sourceCode(text, numbersPerSymbol, M);
+
+% otherwise a random data should be generated.
+else
+
+    % % generate a random data
+    data = randi([0 M-1], dataSize, 1).';
+
+end
 
 % data will be changed passing through system.
 % to be able to check errors at the end of the system,
@@ -405,24 +417,31 @@ if should_encrypt == true
 
 end
 
+%%%%%%%%%%%%%%%%%%%%%% source decode %%%%%%%%%%%%%%%%%%%
+
+% if data should be converted into ascii text
+if should_sourceCode == true
+
+    % decode bits and re-encode it to text.
+    outText = sourceDecode(data, numbersPerSymbol, M);
+
+    % display system output text
+    outText
+
+    % open a file to write output into
+    file = fopen('output.txt', 'w');
+
+    % write output text into the file
+    fwrite(file, outText);
+
+    % close the output file
+
+    fclose(file);
+
+end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % done. check for errors and so.
-
-% decode bits and re-encode it to text.
-outText = sourceDecode(data, numbersPerSymbol, M);
-
-% display system output text
-outText
-
-
-% open a file to write output into
-file = fopen('output.txt', 'w');
-
-% write output text into the file
-fwrite(file, outText);
-
-% close the output file
-fclose(file);
 
 % show number if errors in output
 number_of_errors = sum(data ~= initialData)
