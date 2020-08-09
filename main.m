@@ -11,7 +11,7 @@ pkg load communications;
 % first set some preferences.
 
 % signal to noise ratio in channel
-snr = 0; % deci Bells
+snr = -10; % deci Bells
 
 % PSK modulation size. 2 for BPSK. 4 for QPSK.
 M = 2; % number size. this is called M in this project.
@@ -198,8 +198,12 @@ end
 
 %%%%%%%%%%%%%%%%%%% repeat coding %%%%%%%%%%%%%%%%%%%%%%
 
+% check if this block is turned on
 if should_repeatCode == true
+
+    % do repeat codig on data.
     data = repeatCode(data, repeatSize);
+
 end
 
 %%%%%%%%%%%%%%%%%%% differential coding %%%%%%%%%%%%%%%%
@@ -209,7 +213,6 @@ data = diffCode(data, M);
 
 % now this data is the exact data that is going to get modulated.
 % lets display size of it!
-disp('data size =')
 disp(cstrcat("data size = ", num2str(length(data))));
 
 %%%%%%%%%%%%%%%%%%%%%% modulating PSK %%%%%%%%%%%%%%%%%%
@@ -292,8 +295,12 @@ end
 
 %%%%%%%%%%%%%%%%%%% repeat decoding %%%%%%%%%%%%%%%%%%%%%
 
+% check if this block is turned on
 if should_repeatCode == true
+
+    % do repeat decoding
     data = repeatDecode(data, repeatSize);
+
 end
 
 %%%%%%%%%%%%%%%%%%%%%% checking flags %%%%%%%%%%%%%%%%%%%
