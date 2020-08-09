@@ -13,28 +13,12 @@ function outputPhasors = demodulatePSK(inputSignal, M, signalLength, sampling_fr
     % generate time domain
     T = 0:1/sampling_frequency:q0/sampling_frequency - 1/sampling_frequency;
 
-    % get size of each signal block. (size of each pulse in samples)
-    q = signalLength * sampling_frequency + 1;
-
-    % get number of pulses in signal.
-    n = q0 / q;
-
-    n = floor(n);
-
-    newSize = q * n;
-    
-    T = 0:1/sampling_frequency:signalLength;
-    
-
     % carrier with phase = 0
-    pulseS = sin(carrier_frequency * 2*pi *T);
+    carrierS = sin(carrier_frequency * 2*pi *T);
 
     % carrier with phase = π
-    pulseC = sin(carrier_frequency * 2*pi *T + pi/2);
+    carrierC = sin(carrier_frequency * 2*pi *T + pi/2);
     
-    carrierC = repmat(pulseS, 1, n);
-    carrierS = repmat(pulseC, 1, n);
-
     % multiply signal by carriers.
     
     % signal multiplied by carrier with phase = 0
@@ -46,6 +30,15 @@ function outputPhasors = demodulatePSK(inputSignal, M, signalLength, sampling_fr
     % output phasors will be stored here
     output_dem = zeros(1, floor(length(inputSignal) / q0) +1);
 
+    % get size of each signal block. (size of each pulse in samples)
+    q = signalLength * sampling_frequency + 1;
+
+    % get number of pulses in signal.
+    n = q0 / q;
+
+    n = floor(n);
+
+    newSize = q * n;
 
     % seperate sine multiplied signal into pulses
     Blocks_of_sigS = reshape(sigS(1:q*n), q, n);
