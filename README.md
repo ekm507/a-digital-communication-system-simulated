@@ -9,8 +9,6 @@
 
 * generate better filter for channel
 
-* fix demodulation problem with using different pulse lengths
-
 * fix problems with `M` `=` `4`
 
 * add documents to undocumented code parts
