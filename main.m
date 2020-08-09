@@ -106,29 +106,27 @@ should_useSeveralAntennas = true;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % get data.
 
-% if you want to use text as data, use source coding block.
-% otherwise, uncomment next lines.
-
 % % data size in numbers. each data will be in size of M
 dataSize = 16000;
 
-% open a file to read text to send from
-file = fopen('input.txt');
-
-% read text to send.
-text = fread(file, '*char');
-
-% close the input file
-fclose(file);
-
-% transpose the text matrix. this is necessary for other functions to work properly.
-% because by default, output of fread function is a vertical matrix but we
-% need a siumple horizontal vector.
-text = text.';
-
+% if you want to use text as data, use source coding block.
 % check if data should be read from file
-if should_sourceCode = true
-    
+if should_sourceCode == true
+
+    % open a file to read text to send from
+    file = fopen('input.txt');
+
+    % read text to send.
+    text = fread(file, '*char');
+
+    % close the input file
+    fclose(file);
+
+    % transpose the text matrix. this is necessary for other functions to work properly.
+    % because by default, output of fread function is a vertical matrix but we
+    % need a siumple horizontal vector.
+    text = text.';
+
     % encode text into bits. so we can process that further.
     data = sourceCode(text, numbersPerSymbol, M);
 
