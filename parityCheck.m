@@ -56,8 +56,8 @@ function outputData = parityCheck (inputData, ParityBlockSize, M)
     end
 
     % print number of errors detected by parity check:
-    disp("number of errors detected by parity check is:");
-    disp(numberOdErrorsDetected);
+    disp(cstrcat("number of errors detected by parity check = ", num2str(numberOdErrorsDetected)));
+
     
     % return data with parity numbers removed.
     outputData = ParityCheckedData;
