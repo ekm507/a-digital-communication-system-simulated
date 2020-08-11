@@ -59,7 +59,7 @@ ParityBlockSize = 4; % 4 numbers.
 
 % size of a block to add index bits to
 if should_addParity == true
-    numberOfParityBlockPerCryptBlock = cryptBlockSize / ParityBlockSize;
+    numberOfParityBlockPerCryptBlock = ceil(cryptBlockSize / ParityBlockSize);
     indexBlockSize = cryptBlockSize + numberOfParityBlockPerCryptBlock;
 else
     indexBlockSize = cryptBlockSize;
