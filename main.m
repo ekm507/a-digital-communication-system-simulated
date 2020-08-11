@@ -8,6 +8,13 @@ pkg load communications;
 
 %%%%%%%%% turn system blocks on or off %%%%%%%%%%%%
 
+% System block diagram is like this
+
+% text --> SourceCode --> parityAdd --> addIndex --> addFlag -->
+% diffCode --> repeatCode --> modulate --> channel -->
+% demodulate --> angle/diff-Decode --> repeatDecode --> flagCheck -->
+% indexCheck --> parityCheck --> sourceDecode --> text
+
 % reading text from file
 should_sourceCode = true;
 
@@ -160,12 +167,6 @@ end
 % initial data should be stored in safe
 initialData = data;
 
-% System block diagram is like this
-
-% text --> SourceCode --> parityAdd --> addIndex --> addFlag -->
-% diffCode --> repeatCode --> modulate --> channel -->
-% demodulate --> angle/diff-Decode --> repeatDecode --> flagCheck -->
-% indexCheck --> parityCheck --> sourceDecode --> text
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % start the system
