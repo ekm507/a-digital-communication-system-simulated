@@ -11,7 +11,11 @@ function outData = repeatDecode (inputData, repeatSize)
         q = length(inputData);
         
         % calculate new size of the matrix
-        newSize = q / repeatSize;
+        newSize = floor(q / repeatSize);
+
+        q1 = newSize * repeatSize;
+
+        inputData = inputData(q - q1 + 1 : end);
 
         % reshape the vector to a 2D matrix, so that repetitions come along in a vector
         temp = reshape(inputData, repeatSize, newSize);

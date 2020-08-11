@@ -15,6 +15,8 @@ function outData = decrypt (inputData, keys, blockSize, M)
     % data has extras that cant be reshaped properly
     qMax = numberOfBlocks * blockSize;
 
+    inputData = inputData(1:qMax);
+
     % reshape data in blocks
     data = reshape(inputData, blockSize, numberOfBlocks);
     data = data.';
