@@ -6,74 +6,6 @@ close all;
 % communication lib. for coding in MATLAB, comment the line below
 pkg load communications;
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% first set some preferences.
-
-% signal to noise ratio in channel
-snr = -10; % deci Bells
-
-% PSK modulation size. 2 for BPSK. 4 for QPSK.
-M = 2; % number size. this is called M in this project.
-
-% carrier signal frequency for modulating PSK
-carrier_frequency = 30*1000*1000; % 30 Mega Hertz
-
-% sampling frequency for signal processings.
-% keep nyquist theoreum in mind.
-sampling_frequency = carrier_frequency * 200; % 200 times carrier frequency.
-
-% signal length in phase ( cycles ).
-signal_phase_length = 2 * 2*pi; % 2 cycles
-
-% signal length in samples.
-signalLength = signal_phase_length / (2 * pi * carrier_frequency); % seconds
-
-bitRate = log(M) / log(2) * carrier_frequency * 2 * pi / signal_phase_length;
-disp(cstrcat('channel bit rate = ', num2str(bitRate)));
-
-% block size for parity adding algorithm
-% this is not actual parity in M > 2. it is mod of sum of data to M.
-ParityBlockSize = 4; % 4 numbers.
-
-% shiftSize: shift size in channel. use negative numbers to add zero signal to the begining.
-% for shifting over time instead of samples:
-% shif_Time = 0;
-% shiftSize = shif_Time * sampling_frequency;
-shiftSize = 0; % samples
-
-% size of flag numbers to add to each block
-flagSize = 3;
-
-% size of a block to add a flag to.
-
-% for encoding text into bits.
-% this denotes nomber of bits should be used for coding each character of text.
-numbersPerSymbol = 8;
-
-% size of a block to add index bits to
-indexBlockSize = 10;
-
-% number of bits in index bits.
-indexSize = 2;
-
-% size of block should be devidable to data blocks.
-% since flag is for finding begining of data blocks and there is
-% no other way provided to do so, then
-% it is recommended to use same blocks for adding flags and adding index to.
-% to do that, flag block size should be equal to block size of index added data. (output of addIndex)
-flagBlockSize = indexBlockSize + indexSize;
-
-% set number of receiver antennas after channel.
-% having a few parallel antennas may increase signal quality and give you better BER.
-numberOfReceiverAntennas = 1;
-
-% one-time-pad encryption block size
-cryptBlockSize = 8;
-
-repeatSize = 3;
-
-
 %%%%%%%%% turn system blocks on or off %%%%%%%%%%%%
 
 % reading text from file
@@ -102,6 +34,89 @@ should_passChannel = true;
 
 % check if receiver should use several anteennas
 should_useSeveralAntennas = true;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% first set some preferences.
+
+% PSK modulation size. 2 for BPSK. 4 for QPSK.
+M = 2; % number size. this is called M in this project.
+
+% for encoding text into bits.
+% this denotes nomber of bits should be used for coding each character of text.
+numbersPerSymbol = ceil(8 / log2(M));
+
+if should_sourceCode == true
+    % one-time-pad encryption block size
+    cryptBlockSize = numbersPerSymbol;
+else
+    cryptBlockSize = 8;
+end
+
+
+% block size for parity adding algorithm
+% this is not actual parity in M > 2. it is mod of sum of data to M.
+ParityBlockSize = 4; % 4 numbers.
+
+% size of a block to add index bits to
+if should_addParity == true
+    numberOfParityBlockPerCryptBlock = cryptBlockSize / ParityBlockSize;
+    indexBlockSize = cryptBlockSize + numberOfParityBlockPerCryptBlock;
+else
+    indexBlockSize = cryptBlockSize;
+end
+
+% number of bits in index bits.
+indexSize = 2;
+
+
+% size of a block to add a flag to.
+
+% size of block should be devidable to data blocks.
+% since flag is for finding begining of data blocks and there is
+% no other way provided to do so, then
+% it is recommended to use same blocks for adding flags and adding index to.
+% to do that, flag block size should be equal to block size of index added data. (output of addIndex)
+
+if should_addIndex == true
+    flagBlockSize = indexBlockSize + indexSize;
+else
+    flagBlockSize = indexBlockSize;
+end
+
+% size of flag numbers to add to each block
+flagSize = 3;
+
+% number of repetitions for repeat coding
+repeatSize = 3;
+
+% set number of receiver antennas after channel.
+% having a few parallel antennas may increase signal quality and give you better BER.
+numberOfReceiverAntennas = 1;
+
+% carrier signal frequency for modulating PSK
+carrier_frequency = 30*1000*1000; % 30 Mega Hertz
+
+% sampling frequency for signal processings.
+% keep nyquist theoreum in mind.
+sampling_frequency = carrier_frequency * 200; % 200 times carrier frequency.
+
+% signal length in phase ( cycles ).
+signal_phase_length = 2 * 2*pi; % 2 cycles
+
+% signal length in samples.
+signalLength = signal_phase_length / (2 * pi * carrier_frequency); % seconds
+
+bitRate = log(M) / log(2) * carrier_frequency * 2 * pi / signal_phase_length;
+disp(cstrcat('channel bit rate = ', num2str(bitRate)));
+
+% signal to noise ratio in channel
+snr = -10; % deci Bells
+
+% shiftSize: shift size in channel. use negative numbers to add zero signal to the begining.
+% for shifting over time instead of samples:
+% shif_Time = 0;
+% shiftSize = shif_Time * sampling_frequency;
+shiftSize = 0; % samples
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % get data.
@@ -240,7 +255,7 @@ diffCodedData = data;
 
 % now this data is the exact data that is going to get modulated.
 % lets display size of it!
-disp(cstrcat("data size = ", num2str(length(data))));
+disp(cstrcat("data size = ", num2str(length(data) * log2(M) )));
 
 %%%%%%%%%%%%%%%%%%%%%% modulating PSK %%%%%%%%%%%%%%%%%%
 
