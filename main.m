@@ -125,6 +125,16 @@ snr = -10; % deci Bells
 % shiftSize = shif_Time * sampling_frequency;
 shiftSize = 0; % samples
 
+channel_shouldFilter = true;
+
+if channel_shouldFilter == true
+    % create a filter for channel
+    [channelFilter_b,channelFilter_a] = butter(1, carrier_frequency/ sampling_frequency * 2);
+else
+    channelFilter_b = [1 1];
+    channelFilter_a = [1 1];
+end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % get data.
 
@@ -153,6 +163,8 @@ if should_sourceCode == true
 
     % encode text into bits. so we can process that further.
     data = sourceCode(text, numbersPerSymbol, M);
+
+    initialDataSize = length(data);
 
 % otherwise a random data should be generated.
 else
@@ -260,7 +272,8 @@ diffCodedData = data;
 % now this data is the exact data that is going to get modulated.
 % lets display size of it!
 disp(cstrcat("data size = ", num2str(length(data) * log2(M) )));
-
+disp(cstrcat("coding ratio = ", num2str(length(data) / initialDataSize)));
+disp(cstrcat("actual transmission rate = ", num2str(bitRate * initialDataSize / length(data))));
 %%%%%%%%%%%%%%%%%%%%%% modulating PSK %%%%%%%%%%%%%%%%%%
 
 % check if this block is turned on
@@ -287,9 +300,6 @@ end
 % check if this block is turned on
 if should_passChannel == true
 
-    % create a filter for channel
-    [b,a] = butter(1, carrier_frequency/ sampling_frequency * 2);
-
     disp('channel');
 
     % check if several antennas in receiver should be used.
@@ -305,7 +315,7 @@ if should_passChannel == true
         for i = 1:numberOfReceiverAntennas
 
             % pass signal through channel
-            antennaSignal(i, :) = channelPass(signal, snr, shiftSize, b, a);
+            antennaSignal(i, :) = channelPass(signal, snr, shiftSize, channelFilter_b, channelFilter_a);
 
         % receiving signal through same channel but with multiple antennas done.
         end
@@ -317,7 +327,7 @@ if should_passChannel == true
     else
 
         % pass signal through channel.    
-        signal = channelPass(signal, snr, shiftSize, b, a);
+        signal = channelPass(signal, snr, shiftSize, channelFilter_b, channelFilter_a);
 
         antennaSignal = signal;
 
