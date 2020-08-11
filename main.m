@@ -128,6 +128,8 @@ dataSize = 16000;
 % check if data should be read from file
 if should_sourceCode == true
 
+    disp('source code');
+
     % open a file to read text to send from
     file = fopen('input.txt');
 
@@ -455,6 +457,8 @@ end
 
 % if data should be converted into ascii text
 if should_sourceCode == true
+
+    disp('source decode')
 
     % decode bits and re-encode it to text.
     outText = sourceDecode(data, numbersPerSymbol, M);
