@@ -162,8 +162,9 @@ initialData = data;
 
 % System block diagram is like this
 
-% text --> SourceCode --> parityAdd --> addIndex --> addFlag --> diffCode -->
-% modulate --> channel --> demodulate --> angle/diff-Decode --> flagCheck -->
+% text --> SourceCode --> parityAdd --> addIndex --> addFlag -->
+% diffCode --> repeatCode --> modulate --> channel -->
+% demodulate --> angle/diff-Decode --> repeatDecode --> flagCheck -->
 % indexCheck --> parityCheck --> sourceDecode --> text
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
