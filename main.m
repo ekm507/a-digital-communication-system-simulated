@@ -222,6 +222,8 @@ end
 % check if this block is turned on
 if should_repeatCode == true
 
+    disp('repeat code');
+
     % do repeat codig on data.
     data = repeatCode(data, repeatSize);
 
@@ -342,6 +344,8 @@ diffDecodedData = data;
 % check if this block is turned on
 if should_repeatCode == true
 
+    disp('repeat decode');
+
     % do repeat decoding
     data = repeatDecode(data, repeatSize);
 
@@ -457,6 +461,10 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % done. check for errors and so.
+q0 = length(initialData);
+q = length(data);
+
+dataToCheck = initialData(q0 - q + 1 : end);
 
 % show number if errors in output
-number_of_errors = sum(data ~= initialData)
+number_of_errors = sum(data ~= dataToCheck)
