@@ -8,14 +8,14 @@ pkg load communications;
 
 %%%%%%%%% turn system blocks on or off %%%%%%%%%%%%
 
+
+
+
+
 % System block diagram is like this
 
 numberOfTests = 10
 number_of_errors = [];
-
-for i = 1 : numberOfTests
-disp('');
-disp(cstrcat('doing test # ', num2str(i), ' ... '));
 
 % start ticking the timer. so at the end we
 % will know how much time the whole process takes.
@@ -176,7 +176,7 @@ if should_sourceCode == true
     % encode text into bits. so we can process that further.
     data = sourceCode(text, numbersPerSymbol, M);
 
-    initialDataSize = length(data);
+    initialDataSize = length(data)
 
 % otherwise a random data should be generated.
 else
@@ -196,6 +196,10 @@ initialData = data;
 % start the system
 
 
+for i = 1 : numberOfTests
+    disp('');
+    disp(cstrcat('doing test # ', num2str(i), ' ... '));
+    data = initialData;
 
 
     %%%%%%%%%%%%%%%%%%%%%% encrypt data %%%%%%%%%%%%%%%%%%%
@@ -516,5 +520,5 @@ end
 toc
 
 number_of_errors
-disp('mean is: (number of errors per 10,000 bits:');
+disp('mean is: (number of errors per 10,000 bits)');
 disp(mean(number_of_errors) * 10000 / initialDataSize);
