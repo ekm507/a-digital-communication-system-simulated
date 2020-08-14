@@ -25,7 +25,7 @@ should_encrypt = true;
 should_addParity = true;
 
 % index adding and index checking blocks
-should_addIndex = true;
+should_addIndex = ;
 
 % flag adding and flag checking blocks
 should_addFlag = false;
@@ -140,6 +140,12 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % get data.
 
+% start ticking the timer. so at the end we
+% will know how much time the whole process takes.
+tic
+
+%%%%%%%%%%%%%%%%%%%%%% source encoding %%%%%%%%%%%%%%%%%%%
+
 % % data size in numbers. each data will be in size of M
 dataSize = 16000;
 
@@ -185,12 +191,10 @@ initialData = data;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % start the system
 
-% start ticking the timer. so at the end we
-% will know how much time the whole process takes.
-tic
-
 %%%%%%%%%%%%%%%%%%%%%% encrypt data %%%%%%%%%%%%%%%%%%%
 if should_encrypt == true
+
+    disp('encrypt data');
 
     % get length of data
     q = length(data);
@@ -414,15 +418,19 @@ if should_addIndex == true
     % otherwise it is needed
     if should_addFlag == true
 
+        data = checkIndex(data, indexBlockSize, indexSize);
         % convert output of checkFlag which is a cell array, to a plain vector
-        data = cell2mat(data);
+
+        indexCheckedData = data;
+
+    else
+
+        % remove indices from data
+        data = indexRemove(data, indexBlockSize, indexSize);
+
+        indexRemovedData = data;
 
     end
-
-    % remove indices from data
-    data = indexRemove(data, indexBlockSize, indexSize);
-
-    indexRemovedData = data;
 
 % but if block is turned off, output of checkFlag which is a cell array,
 % should be turned into a vector to avoid errors in other blocks
@@ -454,14 +462,25 @@ end
 
 % transmission finish.
 % so output the time this process took.
-toc
+
+%%%%%%%%%%%%%%%%%%%%%% decrypting %%%%%%%%%%%%%%%%%%%
 
 if should_encrypt == true
 
-    % decrypt data using  one-time-pad keys.
-    % keys should be generated in the transmitter part and
-    % the same keys should be used here.
-    data = decrypt(data, keys, cryptBlockSize, M);
+    disp('decrypt data');
+
+    if should_addIndex == true
+
+        data = decryptWithIndex(data, keys, cryptBlockSize, M);
+
+    else
+
+        % decrypt data using  one-time-pad keys.
+        % keys should be generated in the transmitter part and
+        % the same keys should be used here.
+        data = decrypt(data, keys, cryptBlockSize, M);
+
+    end
 
     decryptedData = data;
 
@@ -491,6 +510,8 @@ if should_sourceCode == true
     fclose(file);
 
 end
+
+toc
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % done. check for errors and so.
