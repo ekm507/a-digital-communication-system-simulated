@@ -117,7 +117,7 @@ signal_phase_length = 2 * 2*pi; % 2 cycles
 signalLength = signal_phase_length / (2 * pi * carrier_frequency); % seconds
 
 bitRate = log(M) / log(2) * carrier_frequency * 2 * pi / signal_phase_length;
-disp(cstrcat('channel bit rate = ', num2str(bitRate)));
+disp(strcat('channel bit rate = ', num2str(bitRate)));
 
 % signal to noise ratio in channel
 snr = -10; % deci Bells
@@ -273,9 +273,9 @@ diffCodedData = data;
 
 % now this data is the exact data that is going to get modulated.
 % lets display size of it!
-disp(cstrcat("data size = ", num2str(length(data) * log2(M) )));
-disp(cstrcat("coding ratio = ", num2str(length(data) / initialDataSize)));
-disp(cstrcat("actual transmission rate = ", num2str(bitRate * initialDataSize / length(data))));
+disp(strcat("data size = ", num2str(length(data) * log2(M) )));
+disp(strcat("coding ratio = ", num2str(length(data) / initialDataSize)));
+disp(strcat("actual transmission rate = ", num2str(bitRate * initialDataSize / length(data))));
 %%%%%%%%%%%%%%%%%%%%%% modulating PSK %%%%%%%%%%%%%%%%%%
 
 % check if this block is turned on
