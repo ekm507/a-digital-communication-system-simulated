@@ -20,3 +20,5 @@
 * now fix that new demodulation phase problem!
 
 * let encryption to use index
+
+* fix conflicts in parityCheck (while using cryptography that uses indices)
