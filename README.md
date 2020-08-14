@@ -18,3 +18,5 @@
 * demodulation clock sync should be fixed with shifted signal
 
 * now fix that new demodulation phase problem!
+
+* let encryption to use index
