@@ -42,6 +42,9 @@ should_passChannel = true;
 % check if receiver should use several anteennas
 should_useSeveralAntennas = true;
 
+% turn channel filter on or off
+channel_shouldFilter = true;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % first set some preferences.
 
@@ -125,7 +128,6 @@ snr = -10; % deci Bells
 % shiftSize = shif_Time * sampling_frequency;
 shiftSize = 0; % samples
 
-channel_shouldFilter = true;
 
 if channel_shouldFilter == true
     % create a filter for channel
