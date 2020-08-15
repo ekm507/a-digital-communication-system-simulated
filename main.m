@@ -25,7 +25,7 @@ should_encrypt = true;
 should_addParity = true;
 
 % index adding and index checking blocks
-should_addIndex = ;
+should_addIndex = false;
 
 % flag adding and flag checking blocks
 should_addFlag = false;
