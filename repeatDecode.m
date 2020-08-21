@@ -23,6 +23,9 @@ function outData = repeatDecode (inputData, repeatSize)
         % assume the true data is the data with most repetition.
         % so mod of each vector should be used/
         outData = mode(temp);
+        
+        number_of_errors = sum(mode(temp) ~= mean(temp));
+        disp(strcat("number of errors fixed by repeat code = ", num2str(number_of_errors)));
 
     % but if there is not a need to decode
     else
