@@ -3,8 +3,13 @@ clc;
 clear;
 close all;
 
-% communication lib. for coding in MATLAB, comment the line below
-pkg load communications;
+% if running code on MATLAB, set this.
+running_on_MATLAB = false;
+
+if running_on_MATLAB == false
+    % communication lib. for octave.
+    pkg load communications;
+end
 
 %%%%%%%%% turn system blocks on or off %%%%%%%%%%%%
 
@@ -130,12 +135,22 @@ shiftSize = 0; % samples
 
 
 if channel_shouldFilter == true
-    % create a filter for channel
+    % create a filter for channel : octave type
     [channelFilter_b,channelFilter_a] = butter(1, carrier_frequency/ sampling_frequency * 2);
+
+    % create a filter bandwidth for channel : MATLAB type
+    filter_frequency_limits = [carrier_frequency * 0.85, carrier_frequency * 1.15];
 else
+
+    % use therse filter coefficients to make filter not work! : octave type
     channelFilter_b = [1 1];
     channelFilter_a = [1 1];
+
+    % bandwidth in MATLAB type: 1000fc is considered as infinity!
+    filter_frequency_limits = [0, carrier_frequency * 1000];
+
 end
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % get data.
@@ -321,7 +336,14 @@ if should_passChannel == true
         for i = 1:numberOfReceiverAntennas
 
             % pass signal through channel
-            antennaSignal(i, :) = channelPass(signal, snr, shiftSize, channelFilter_b, channelFilter_a);
+
+            if running_on_MATLAB == true
+                antennaSignal(i, :) = channelPass_MATLAB(signal, snr, shiftSize, filter_frequency_limits, sampling_frequency);
+            else
+                antennaSignal(i, :) = channelPass(signal, snr, shiftSize, channelFilter_b, channelFilter_a);
+            end
+
+
 
         % receiving signal through same channel but with multiple antennas done.
         end
@@ -332,8 +354,13 @@ if should_passChannel == true
     % if there is only 1 antenna needed, just do 1 channelPass for it
     else
 
-        % pass signal through channel.    
-        signal = channelPass(signal, snr, shiftSize, channelFilter_b, channelFilter_a);
+        % pass signal through channel.
+
+        if running_on_MATLAB == true
+            signal = channelPass_MATLAB(signal, snr, shiftSize, filter_frequency_limits, sampling_frequency);
+        else
+            signal = channelPass(signal, snr, shiftSize, channelFilter_b, channelFilter_a);
+        end
 
         antennaSignal = signal;
 
@@ -341,6 +368,7 @@ if should_passChannel == true
 
 
 end
+
 
 %%%%%%%%%%%%%%%%%%%%%% demodulating psk %%%%%%%%%%%%%%%%%
 
@@ -523,6 +551,6 @@ dataToCheck = initialData(q0 - q + 1 : end);
 % show number if errors in output
 number_of_bit_errors = sum(data ~= dataToCheck)
 
-if should_sourceCode = true
+if should_sourceCode == true
     number_of_text_errors = sum(text ~= outText)
 end
