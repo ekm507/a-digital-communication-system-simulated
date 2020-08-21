@@ -521,4 +521,8 @@ q = length(data);
 dataToCheck = initialData(q0 - q + 1 : end);
 
 % show number if errors in output
-number_of_errors = sum(data ~= dataToCheck)
+number_of_bit_errors = sum(data ~= dataToCheck)
+
+if should_sourceCode = true
+    number_of_text_errors = sum(text ~= outText)
+end
