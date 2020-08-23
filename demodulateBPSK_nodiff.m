@@ -1,7 +1,7 @@
 % Demodulate Signal that is Modulated with MPSK method.
 % output phasors(angles) = f(input signal, Modulation level, length of one pulse, sampling frequency of digital signal, frequency of carrier pulses)
 
-function outputPhasors = demodulatePSK(inputSignal, M, signalLength, sampling_frequency, carrier_frequency)
+function outputPhasors = demodulateBPSK_nodiff(inputSignal, M, signalLength, sampling_frequency, carrier_frequency)
 
     % get size of input signal
     q0 = size(inputSignal);

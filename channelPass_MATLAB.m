@@ -3,10 +3,11 @@
 % for now, channel will add noise and shift signal.
 % output signal = f(signal to pass through channel, Signal to Noise Ratio, size of shift in signal in samples)
 
-function outputSignal = channelPass(inputSignal, SNR, shiftSize, channelFilterb, channelFiltera)
+function outputSignal = channelPass_MATLAB(inputSignal, SNR, shiftSize, filter_frequency_limits, sampling_frequency)
     
-    filteredInputSignal = filter(channelFilterb, channelFiltera, inputSignal);
-
+    %filteredInputSignal = filter(channelFilterb, channelFiltera, inputSignal);
+    filteredInputSignal = bandpass(inputSignal, filter_frequency_limits, sampling_frequency);
+    
     % add noise to the signal.
     noisySignal = awgn(filteredInputSignal, SNR);
 
@@ -27,8 +28,11 @@ function outputSignal = channelPass(inputSignal, SNR, shiftSize, channelFilterb,
         shiftedSignal = noisySignal;
     end
 
-    filteredOutputSignal = filter(channelFilterb, channelFiltera, shiftedSignal);
+    %filteredOutputSignal = filter(channelFilterb, channelFiltera, shiftedSignal);
 
+    
+    filteredOutputSignal = bandpass(inputSignal, filter_frequency_limits, sampling_frequency);
+    
     % output will be the shifted signal
     outputSignal = filteredOutputSignal;
 end
